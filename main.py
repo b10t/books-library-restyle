@@ -1,5 +1,5 @@
 import os
-from urllib.parse import urlparse
+from urllib.parse import unquote, urljoin, urlparse, urlsplit
 
 import requests
 import urllib3
@@ -15,14 +15,7 @@ def check_for_redirect(response):
 
 
 def download_txt(url, filename, folder='books', params={}):
-    """Функция для скачивания текстовых файлов.
-    Args:
-        url (str): Ссылка на текст, который хочется скачать.
-        filename (str): Имя файла, с которым сохранять.
-        folder (str): Папка, куда сохранять.
-    Returns:
-        str: Путь до файла, куда сохранён текст.
-    """
+    """Функция для скачивания текстовых файлов."""
     os.makedirs(folder, exist_ok=True)
 
     response = requests.get(url, verify=False, params=params)
@@ -35,6 +28,24 @@ def download_txt(url, filename, folder='books', params={}):
         file.write(response.content)
 
     return book_save_path
+
+
+def download_image(url, folder='images'):
+    """Скачивает изображение книги."""
+    os.makedirs(folder, exist_ok=True)
+
+    response = requests.get(url)
+    response.raise_for_status()
+
+    check_for_redirect(response)
+
+    image_save_path = os.path.join(
+        folder,
+        os.path.basename(unquote(urlsplit(url).path))
+    )
+
+    with open(image_save_path, 'wb') as file:
+        file.write(response.content)
 
 
 def get_book_description(url):
@@ -51,7 +62,12 @@ def get_book_description(url):
     book_title, book_author = [text.strip()
                                for text in title_tag.text.split('::')]
 
-    return book_title, book_author
+    book_image_url = urljoin(
+        url,
+        soup.find('div', class_='bookimage').find('img')['src']
+    )
+
+    return book_title, book_author, book_image_url
 
 
 if __name__ == '__main__':
@@ -69,7 +85,7 @@ if __name__ == '__main__':
         }
 
         try:
-            book_title, book_author = get_book_description(
+            book_title, book_author, book_image_url = get_book_description(
                 book_description_url.format(book_id)
             )
 
@@ -78,5 +94,9 @@ if __name__ == '__main__':
                 f'{book_id}. {book_title}',
                 books_path,
                 params)
+
+            download_image(
+                book_image_url
+            )
         except requests.HTTPError:
             continue
