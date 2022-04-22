@@ -1,3 +1,4 @@
+import argparse
 import os
 from urllib.parse import unquote, urljoin, urlparse, urlsplit
 
@@ -14,11 +15,11 @@ def check_for_redirect(response):
         raise requests.HTTPError
 
 
-def download_txt(url, filename, folder='books', params={}):
+def download_txt(url, filename, folder='books'):
     """Функция для скачивания текстовых файлов."""
     os.makedirs(folder, exist_ok=True)
 
-    response = requests.get(url, verify=False, params=params)
+    response = requests.get(url, verify=False)
     response.raise_for_status()
 
     check_for_redirect(response)
@@ -86,30 +87,38 @@ def parse_book_page(page_content):
 if __name__ == '__main__':
     urllib3.disable_warnings(InsecureRequestWarning)
 
-    book_download_url = 'https://tululu.org/txt.php'
-    book_description_url = 'https://tululu.org/b{}/'
+    parser = argparse.ArgumentParser(
+        description='Скачивает книги с сайта tululu.org'
+    )
+    parser.add_argument('start_id',
+                        help='Начальный id книги',
+                        type=int,
+                        default=1)
 
-    books_path = 'books'
-    os.makedirs(books_path, exist_ok=True)
+    parser.add_argument('end_id',
+                        help='Конечный id книги',
+                        type=int,
+                        default=10)
 
-    for book_id in range(1, 11):
-        params = {
-            'id': book_id,
-        }
+    args = parser.parse_args()
 
+    url = 'https://tululu.org/'
+
+    for book_id in range(args.start_id, args.end_id + 1):
         try:
-            book_title, book_author, book_image_url = get_book_description(
-                book_description_url.format(book_id)
-            )
+            response = requests.get(f'{url}/b{book_id}')
+            response.raise_for_status()
+
+            check_for_redirect(response)
+
+            parse_page = parse_book_page(response.content)
 
             download_txt(
-                book_download_url,
-                f'{book_id}. {book_title}',
-                books_path,
-                params)
+                urljoin(url, parse_page['download_url']),
+                f'{book_id}. {parse_page["book_title"]}')
 
             download_image(
-                book_image_url
+                urljoin(url, parse_page['book_image_url'])
             )
         except requests.HTTPError:
             continue
