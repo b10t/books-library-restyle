@@ -113,6 +113,9 @@ if __name__ == '__main__':
 
             parse_page = parse_book_page(response.content)
 
+            print('Название:', parse_page['book_title'])
+            print('Автор:', parse_page['book_author'], end='\n\n')
+
             download_txt(
                 urljoin(url, parse_page['download_url']),
                 f'{book_id}. {parse_page["book_title"]}')
