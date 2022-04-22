@@ -14,6 +14,7 @@ def check_for_redirect(response):
 
 
 def parse_book_page(page_content):
+    """Возвращает данные страницы по книге."""
     soup = BeautifulSoup(page_content, 'lxml')
 
     title_tag = soup.find('h1')
