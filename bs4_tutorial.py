@@ -32,12 +32,19 @@ def parse_book_page(page_content):
         for span in div.select('span.black'):
             comments.append(span.text)
 
+    genres = []
+
+    for span in soup.select('span.d_book'):
+        for tag_a in span.select('a'):
+            genres.append(tag_a.text)
+
     return dict(
         book_title=book_title,
         book_author=book_author,
         book_image_url=book_image_url,
         download_url=download_url,
-        comments=comments)
+        comments=comments,
+        genres=genres)
 
 
 url = 'https://tululu.org/b9/'
@@ -65,26 +72,27 @@ print(parse_book_page(response.content))
 # book_image_src = soup.find('div', class_='bookimage').find('img')['src']
 
 # print(urljoin(url, book_image_src))
+
 # url = 'https://tululu.org/b9/'
 # response = requests.get(url)
 # response.raise_for_status()
 
 # soup = BeautifulSoup(response.text, 'lxml')
 
-# # download_tag = soup.find('a', string='скачать txt')
-# # download_url = download_tag['href'] if download_tag else None
+# download_tag = soup.find('a', string='скачать txt')
+# download_url = download_tag['href'] if download_tag else None
 
-# # print(download_url)
+# print(download_url)
 
-# # comments = soup.find_all('span', 'black').get_text
-# # comments = soup.find_all('div', 'texts').find_all('span')
-# comments = []
+# comments = soup.find_all('span', 'black').get_text
+# comments = soup.find_all('div', 'texts').find_all('span')
+# genres = []
 
-# for div in soup.select('div.texts'):
-#     for span in div.select('span.black'):
-#         comments.append(span.text)
+# for span in soup.select('span.d_book'):
+#     for tag_a in span.select('a'):
+#         genres.append(tag_a.text)
 
-# print(*comments, sep='\n')
+# print(*genres, sep='\n')
 
 # print(urljoin(url, book_image_src))
 # print(*book_url)
