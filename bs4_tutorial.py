@@ -1,11 +1,51 @@
-from urllib.parse import urljoin
+import os
+from urllib.parse import urlparse
 
 import requests
+import urllib3
 from bs4 import BeautifulSoup
+from pathvalidate import sanitize_filename
+from urllib3.exceptions import InsecureRequestWarning
 
-# url = 'https://tululu.org/b7/'
-# response = requests.get(url)
-# response.raise_for_status()
+
+def check_for_redirect(response):
+    if response.history and urlparse(response.url).path == '/':
+        raise requests.HTTPError
+
+
+def parse_book_page(page_content):
+    soup = BeautifulSoup(page_content, 'lxml')
+
+    title_tag = soup.find('h1')
+
+    book_title, book_author = [text.strip()
+                               for text in title_tag.text.split('::')]
+
+    book_image_url = soup.find('div', class_='bookimage').find('img')['src']
+
+    download_tag = soup.find('a', string='скачать txt')
+    download_url = download_tag['href'] if download_tag else None
+
+    comments = []
+
+    for div in soup.select('div.texts'):
+        for span in div.select('span.black'):
+            comments.append(span.text)
+
+    return dict(
+        book_title=book_title,
+        book_author=book_author,
+        book_image_url=book_image_url,
+        download_url=download_url,
+        comments=comments)
+
+
+url = 'https://tululu.org/b9/'
+response = requests.get(url)
+response.raise_for_status()
+
+print(parse_book_page(response.content))
+
 
 # soup = BeautifulSoup(response.text, 'lxml')
 
@@ -25,20 +65,26 @@ from bs4 import BeautifulSoup
 # book_image_src = soup.find('div', class_='bookimage').find('img')['src']
 
 # print(urljoin(url, book_image_src))
+# url = 'https://tululu.org/b9/'
+# response = requests.get(url)
+# response.raise_for_status()
 
+# soup = BeautifulSoup(response.text, 'lxml')
 
-url = 'https://tululu.org/b9/'
-response = requests.get(url)
-response.raise_for_status()
+# # download_tag = soup.find('a', string='скачать txt')
+# # download_url = download_tag['href'] if download_tag else None
 
-soup = BeautifulSoup(response.text, 'lxml')
+# # print(download_url)
 
-download_tag = soup.find('a', string='скачать txt')
-download_url = download_tag['href'] if download_tag else None
+# # comments = soup.find_all('span', 'black').get_text
+# # comments = soup.find_all('div', 'texts').find_all('span')
+# comments = []
 
-print(download_url)
+# for div in soup.select('div.texts'):
+#     for span in div.select('span.black'):
+#         comments.append(span.text)
 
-book_url = soup.find('table', class_='d_book').find_all('a')
+# print(*comments, sep='\n')
 
 # print(urljoin(url, book_image_src))
 # print(*book_url)
