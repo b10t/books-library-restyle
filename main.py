@@ -63,17 +63,11 @@ def parse_book_page(page_content):
     download_tag = soup.find('a', string='скачать txt')
     download_url = download_tag['href'] if download_tag else '/txt.php?id='
 
-    comments = []
+    comments = [span.text for div in soup.select('div.texts')
+                for span in div.select('span.black')]
 
-    for div in soup.select('div.texts'):
-        for span in div.select('span.black'):
-            comments.append(span.text)
-
-    genres = []
-
-    for span in soup.select('span.d_book'):
-        for tag_a in span.select('a'):
-            genres.append(tag_a.text)
+    genres = [tag_a.text for span in soup.select('span.d_book')
+              for tag_a in span.select('a')]
 
     return dict(
         book_title=book_title,
