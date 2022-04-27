@@ -111,17 +111,17 @@ if __name__ == '__main__':
 
             check_for_redirect(response)
 
-            parse_page = parse_book_page(response.content)
+            page_content = parse_book_page(response.content)
 
-            print('Название:', parse_page['book_title'])
-            print('Автор:', parse_page['book_author'], end='\n\n')
+            print('Название:', page_content['book_title'])
+            print('Автор:', page_content['book_author'], end='\n\n')
 
             download_txt(
-                urljoin(url, parse_page['download_url']),
-                f'{book_id}. {parse_page["book_title"]}')
+                urljoin(url, page_content['download_url']),
+                f'{book_id}. {page_content["book_title"]}')
 
             download_image(
-                urljoin(url, parse_page['book_image_url'])
+                urljoin(url, page_content['book_image_url'])
             )
         except requests.HTTPError:
             continue
