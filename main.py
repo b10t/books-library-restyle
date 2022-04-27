@@ -29,7 +29,7 @@ def download_txt(url, filename, folder='books'):
     return book_save_path
 
 
-def download_image(url, folder='images'):
+def download_image(url, filename, folder='images'):
     """Скачивает изображение книги."""
     response = requests.get(url)
     response.raise_for_status()
@@ -38,7 +38,7 @@ def download_image(url, folder='images'):
 
     image_save_path = os.path.join(
         folder,
-        os.path.basename(unquote(urlsplit(url).path))
+        filename
     )
 
     with open(image_save_path, 'wb') as file:
@@ -108,10 +108,12 @@ if __name__ == '__main__':
 
             download_url = urljoin(url, page_content['download_url'])
             book_filename = f'{book_id}. {page_content["book_title"]}'
+
             book_image_url = urljoin(url, page_content['book_image_url'])
+            image_filename = f'{book_id}_{os.path.basename(unquote(urlsplit(book_image_url).path))}'
 
             download_txt(download_url, book_filename)
-            download_image(book_image_url)
+            download_image(book_image_url, image_filename)
 
         except requests.HTTPError:
             continue
