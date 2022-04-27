@@ -17,8 +17,6 @@ def check_for_redirect(response):
 
 def download_txt(url, filename, folder='books'):
     """Функция для скачивания текстовых файлов."""
-    os.makedirs(folder, exist_ok=True)
-
     response = requests.get(url, verify=False)
     response.raise_for_status()
 
@@ -33,8 +31,6 @@ def download_txt(url, filename, folder='books'):
 
 def download_image(url, folder='images'):
     """Скачивает изображение книги."""
-    os.makedirs(folder, exist_ok=True)
-
     response = requests.get(url)
     response.raise_for_status()
 
@@ -79,6 +75,9 @@ def parse_book_page(page_content):
 
 
 if __name__ == '__main__':
+    os.makedirs('books', exist_ok=True)
+    os.makedirs('images', exist_ok=True)
+
     urllib3.disable_warnings(InsecureRequestWarning)
 
     parser = argparse.ArgumentParser(
