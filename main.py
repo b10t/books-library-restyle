@@ -54,24 +54,18 @@ def parse_book_page(page_content):
     book_title, book_author = [text.strip()
                                for text in title_tag.text.split('::')]
 
-    book_image_url = soup.find('div', class_='bookimage').find('img')['src']
-
     download_tag = soup.find('a', string='скачать txt')
-    download_url = download_tag['href'] if download_tag else '/txt.php?id='
 
-    comments = [span.text for div in soup.select('div.texts')
-                for span in div.select('span.black')]
-
-    genres = [tag_a.text for span in soup.select('span.d_book')
-              for tag_a in span.select('a')]
-
-    return dict(
-        book_title=book_title,
-        book_author=book_author,
-        book_image_url=book_image_url,
-        download_url=download_url,
-        comments=comments,
-        genres=genres)
+    return {
+        'book_title': book_title,
+        'book_author': book_author,
+        'book_image_url': soup.find('div', class_='bookimage').find('img')['src'],
+        'download_url': download_tag['href'] if download_tag else '/txt.php?id=',
+        'comments': [span.text for div in soup.select('div.texts')
+                     for span in div.select('span.black')],
+        'genres': [tag_a.text for span in soup.select('span.d_book')
+                   for tag_a in span.select('a')]
+    }
 
 
 if __name__ == '__main__':
