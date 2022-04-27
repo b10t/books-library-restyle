@@ -107,12 +107,12 @@ if __name__ == '__main__':
 
             page_content = parse_book_page(response.content)
 
-            download_txt(
-                urljoin(url, page_content['download_url']),
-                f'{book_id}. {page_content["book_title"]}')
+            download_url = urljoin(url, page_content['download_url'])
+            book_filename = f'{book_id}. {page_content["book_title"]}'
+            book_image_url = urljoin(url, page_content['book_image_url'])
 
-            download_image(
-                urljoin(url, page_content['book_image_url'])
-            )
+            download_txt(download_url, book_filename)
+            download_image(book_image_url)
+
         except requests.HTTPError:
             continue
