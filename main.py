@@ -127,4 +127,3 @@ if __name__ == '__main__':
             download_image(book_image_url, image_filename)
         except requests.HTTPError or requests.ConnectionError:
             print('Не удалось скачать книгу с сервера.')
-            continue
