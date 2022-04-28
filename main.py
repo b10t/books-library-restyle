@@ -1,22 +1,12 @@
 import argparse
 import os
-from urllib.parse import unquote, urljoin, urlparse, urlsplit
+from urllib.parse import unquote, urljoin, urlsplit
 
 import requests
 import urllib3
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from urllib3.exceptions import InsecureRequestWarning
-
-
-def get_file_name_from_url(url):
-    """Получает имя файла из url.
-    Args:
-        url (str): Ссылка на файл
-    Returns:
-        str: Имя файла
-    """
-    return os.path.basename(unquote(urlsplit(url).path))
 
 
 def check_for_redirect(response):
@@ -67,7 +57,7 @@ def parse_book_page(page_content):
     book_image_url = soup.find('div', class_='bookimage').find('img')['src']
 
     download_tag = soup.find('a', string='скачать txt')
-    download_url = download_tag['href'] if download_tag else '/txt.php?id='
+    download_url = download_tag['href'] if download_tag else '/txt.php'
 
     comments = [span.text for div in soup.select('div.texts')
                 for span in div.select('span.black')]
@@ -106,24 +96,34 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    url = 'https://tululu.org/'
+    library_site_url = 'https://tululu.org/'
 
     for book_id in range(args.start_id, args.end_id + 1):
         try:
-            response = requests.get(f'{url}b{book_id}/')
+            response = requests.get(f'{library_site_url}b{book_id}/')
             response.raise_for_status()
 
             check_for_redirect(response)
 
-            page_content = parse_book_page(response.content)
+            book_description = parse_book_page(response.content)
 
-            download_url = urljoin(url, page_content['download_url'])
-            book_filename = f'{book_id}. {page_content["book_title"]}'
+            book_url = urljoin(
+                library_site_url,
+                book_description['download_url']
+            )
+            book_filename = f'{book_id}. {book_description["book_title"]}'
 
-            book_image_url = urljoin(url, page_content['book_image_url'])
-            image_filename = f'{book_id}_{get_file_name_from_url(book_image_url)}'
+            book_image_url = urljoin(
+                library_site_url,
+                book_description['book_image_url']
+            )
+            book_image_filename = os.path.basename(
+                unquote(
+                    urlsplit(book_image_url).path
+                ))
+            image_filename = f'{book_id}_{book_image_filename}'
 
-            download_txt(download_url, book_filename)
+            download_txt(book_url, book_filename)
             download_image(book_image_url, image_filename)
         except requests.HTTPError or requests.ConnectionError:
             print('Не удалось скачать книгу с сервера.')
