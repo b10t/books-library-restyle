@@ -21,7 +21,7 @@ def get_file_name_from_url(url):
 
 def check_for_redirect(response):
     """Проверка на редирект."""
-    if response.history and urlparse(response.url).path == '/':
+    if response.history:
         raise requests.HTTPError
 
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     for book_id in range(args.start_id, args.end_id + 1):
         try:
-            response = requests.get(f'{url}/b{book_id}')
+            response = requests.get(f'{url}b{book_id}')
             response.raise_for_status()
 
             check_for_redirect(response)
