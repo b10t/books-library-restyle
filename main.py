@@ -87,12 +87,14 @@ if __name__ == '__main__':
     parser.add_argument('start_id',
                         help='Начальный id книги',
                         type=int,
-                        default=1)
+                        default=1,
+                        nargs='?')
 
     parser.add_argument('end_id',
                         help='Конечный id книги',
                         type=int,
-                        default=10)
+                        default=10,
+                        nargs='?')
 
     args = parser.parse_args()
 
