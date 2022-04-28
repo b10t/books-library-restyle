@@ -18,6 +18,7 @@ def get_file_name_from_url(url):
     """
     return os.path.basename(unquote(urlsplit(url).path))
 
+
 def check_for_redirect(response):
     """Проверка на редирект."""
     if response.history and urlparse(response.url).path == '/':
@@ -124,8 +125,6 @@ if __name__ == '__main__':
 
             download_txt(download_url, book_filename)
             download_image(book_image_url, image_filename)
-        except requests.ConnectionError:
-            continue
-        except requests.HTTPError:
+        except requests.HTTPError or requests.ConnectionError:
             print('Не удалось скачать книгу с сервера.')
             continue
