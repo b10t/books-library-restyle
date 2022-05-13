@@ -27,5 +27,5 @@ python main.py
 
 например:
 ```bash
-python main.py --start_page 700 -dest_folder temp
+python main.py --start_page 700 --dest_folder temp
 ```
