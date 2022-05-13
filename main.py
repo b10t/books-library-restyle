@@ -1,5 +1,9 @@
 import argparse
+import json
 import os
+import pathlib
+import re
+from itertools import count
 from urllib.parse import unquote, urljoin, urlsplit
 
 import requests
@@ -49,13 +53,14 @@ def parse_book_page(page_content):
     """Возвращает данные страницы по книге."""
     soup = BeautifulSoup(page_content, 'lxml')
 
-    title_tag = soup.find('h1')
+    title_tag = soup.select_one('h1')
 
     book_title, book_author = [text.strip()
                                for text in title_tag.text.split('::')]
 
-    book_image_url = soup.find('div', class_='bookimage').find('img')['src']
+    book_image_url = soup.select_one('div.bookimage img')['src']
 
+    download_tag = soup.find('a', string='скачать txt')
     download_tag = soup.find('a', string='скачать txt')
     download_url = download_tag['href'] if download_tag else '/txt.php'
 
@@ -75,32 +80,81 @@ def parse_book_page(page_content):
     }
 
 
-if __name__ == '__main__':
-    os.makedirs('books', exist_ok=True)
-    os.makedirs('images', exist_ok=True)
+def get_book_ids_from_pages(library_site_url, start_page, end_page):
+    """Получение ID книг из страниц."""
+    for page_number in count(start_page):
+        if page_number == end_page:
+            return
 
+        response = requests.get(f'{library_site_url}/l55/{page_number}/')
+        response.raise_for_status()
+
+        try:
+            check_for_redirect(response)
+        except requests.HTTPError:
+            return
+
+        soup = BeautifulSoup(response.content, 'lxml')
+
+        table_d_book = soup.select_one('div#content').select('table.d_book')
+
+        for tag_a in table_d_book:
+            book_href = tag_a.select_one('a').get('href')
+            book_id = int(re.sub(r'[^0-9]', '', book_href))
+
+            yield book_id
+
+
+if __name__ == '__main__':
     urllib3.disable_warnings(InsecureRequestWarning)
 
     parser = argparse.ArgumentParser(
         description='Скачивает книги с сайта tululu.org'
     )
-    parser.add_argument('start_id',
-                        help='Начальный id книги',
+    parser.add_argument('--start_page',
+                        help='Начальный номер страницы',
                         type=int,
-                        default=1,
+                        default=701,
                         nargs='?')
 
-    parser.add_argument('end_id',
-                        help='Конечный id книги',
+    parser.add_argument('--end_page',
+                        help='Конечный номер страницы',
                         type=int,
-                        default=10,
+                        default=0,
                         nargs='?')
+
+    parser.add_argument('--dest_folder',
+                        help='Путь к каталогу с результатами парсинга: картинкам, книгам, JSON',
+                        type=pathlib.Path,
+                        default='.')
+
+    parser.add_argument('--skip_imgs',
+                        help='Не скачивать картинки',
+                        default='')
+
+    parser.add_argument('--skip_txt',
+                        help='Не скачивать книги',
+                        default='')
+
+    parser.add_argument('--json_path',
+                        help='Указать свой путь к *.json файлу с результатами',
+                        type=pathlib.Path,
+                        default='books_descriptions.json')
 
     args = parser.parse_args()
 
+    books_folder = args.dest_folder / 'books'
+    images_folder = args.dest_folder / 'images'
+    json_path = args.dest_folder / args.json_path
+
+    os.makedirs(books_folder, exist_ok=True)
+    os.makedirs(images_folder, exist_ok=True)
+
     library_site_url = 'https://tululu.org/'
 
-    for book_id in range(args.start_id, args.end_id + 1):
+    books_descriptions = []
+
+    for book_id in get_book_ids_from_pages(library_site_url, args.start_page, args.end_page):
         try:
             response = requests.get(f'{library_site_url}b{book_id}/')
             response.raise_for_status()
@@ -108,6 +162,8 @@ if __name__ == '__main__':
             check_for_redirect(response)
 
             book_description = parse_book_page(response.content)
+
+            books_descriptions.append(book_description)
 
             book_url = urljoin(
                 library_site_url,
@@ -125,7 +181,18 @@ if __name__ == '__main__':
                 ))
             image_filename = f'{book_id}_{book_image_filename}'
 
-            download_txt(book_url, book_filename)
-            download_image(book_image_url, image_filename)
+            if not args.skip_txt:
+                download_txt(book_url, book_filename, books_folder)
+
+            if not args.skip_imgs:
+                download_image(book_image_url, image_filename, images_folder)
+
+            print(urljoin(
+                library_site_url,
+                f'b{book_id}'
+            ))
         except requests.HTTPError or requests.ConnectionError:
             print('Не удалось скачать книгу с сервера.')
+
+    with open(json_path, 'w', encoding='utf8') as json_file:
+        json_file.write(json.dumps(books_descriptions, ensure_ascii=False))
