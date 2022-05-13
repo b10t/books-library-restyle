@@ -12,13 +12,17 @@ pip install -r requirements.txt
 
 ### Как запускать
 ```bash
-python main.py start_id end_id
+python main.py
 ```
 
-где:
+дополнительные параметры запуска:
 ```console
-start_id:   Начальный id книги
-end_id:     Конечный id книги
+--start_page:   Начальный номер страницы  
+--end_page:     Конечный номер страницы  
+--dest_folder:  Путь к каталогу с результатами парсинга: картинкам, книгам, JSON  
+--skip_imgs:    Не скачивать картинки  
+--skip_txt:     Не скачивать книги  
+--json_path:    Указать свой путь к *.json файлу с результатами  
 ```
 
 например:
