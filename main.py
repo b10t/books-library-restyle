@@ -105,9 +105,7 @@ def get_book_ids_from_pages(library_site_url, start_page, end_page):
             yield book_id
 
 
-if __name__ == '__main__':
-    urllib3.disable_warnings(InsecureRequestWarning)
-
+def create_parser():
     parser = argparse.ArgumentParser(
         description='Скачивает книги с сайта tululu.org'
     )
@@ -141,7 +139,13 @@ if __name__ == '__main__':
                         type=pathlib.Path,
                         default='books_descriptions.json')
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    urllib3.disable_warnings(InsecureRequestWarning)
+
+    args = create_parser()
 
     books_folder = args.dest_folder / 'books'
     images_folder = args.dest_folder / 'images'
