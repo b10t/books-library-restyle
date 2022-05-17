@@ -61,7 +61,6 @@ def parse_book_page(page_content):
     book_image_url = soup.select_one('div.bookimage img')['src']
 
     download_tag = soup.find('a', string='скачать txt')
-    download_tag = soup.find('a', string='скачать txt')
     download_url = download_tag['href'] if download_tag else '/txt.php'
 
     comments = [span.text for div in soup.select('div.texts')
