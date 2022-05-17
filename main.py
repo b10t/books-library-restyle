@@ -138,7 +138,7 @@ def create_parser():
     parser.add_argument('--json_path',
                         help='Указать свой путь к *.json файлу с результатами',
                         type=pathlib.Path,
-                        default='books_descriptions.json')
+                        default='books_catalog.json')
 
     return parser.parse_args()
 
@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
     library_site_url = 'https://tululu.org/'
 
-    books_descriptions = []
+    books_catalog = []
 
     for book_id in get_book_ids_from_pages(library_site_url, args.start_page, args.end_page):
         try:
@@ -168,7 +168,7 @@ if __name__ == '__main__':
 
             book_description = parse_book_page(response.content)
 
-            books_descriptions.append(book_description)
+            books_catalog.append(book_description)
 
             book_url = urljoin(
                 library_site_url,
@@ -200,4 +200,4 @@ if __name__ == '__main__':
             print('Не удалось скачать книгу с сервера.')
 
     with open(json_path, 'w', encoding='utf8') as json_file:
-        json_file.write(json.dumps(books_descriptions, ensure_ascii=False))
+        json_file.write(json.dumps(books_catalog, ensure_ascii=False))
