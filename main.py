@@ -128,11 +128,13 @@ def create_parser():
 
     parser.add_argument('--skip_imgs',
                         help='Не скачивать картинки',
-                        default='')
+                        default='',
+                        action='store_true')
 
     parser.add_argument('--skip_txt',
                         help='Не скачивать книги',
-                        default='')
+                        default='',
+                        action='store_true')
 
     parser.add_argument('--json_path',
                         help='Указать свой путь к *.json файлу с результатами',
