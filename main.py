@@ -164,19 +164,19 @@ if __name__ == '__main__':
 
                 check_for_redirect(response)
 
-                book_description = parse_book_page(response.content)
+                book = parse_book_page(response.content)
 
-                books_catalog.append(book_description)
+                books_catalog.append(book)
 
                 book_url = urljoin(
                     library_site_url,
-                    book_description['download_url']
+                    book['download_url']
                 )
-                book_filename = f'{book_id}. {book_description["book_title"]}'
+                book_filename = f'{book_id}. {book["book_title"]}'
 
                 book_image_url = urljoin(
                     library_site_url,
-                    book_description['book_image_url']
+                    book['book_image_url']
                 )
                 book_image_filename = os.path.basename(
                     unquote(
