@@ -88,10 +88,7 @@ def get_book_ids_from_pages(library_site_url, start_page, end_page):
         response = requests.get(f'{library_site_url}/l55/{page_number}/')
         response.raise_for_status()
 
-        try:
-            check_for_redirect(response)
-        except requests.HTTPError:
-            return
+        check_for_redirect(response)
 
         soup = BeautifulSoup(response.content, 'lxml')
 
@@ -159,45 +156,49 @@ if __name__ == '__main__':
 
     books_catalog = []
 
-    for book_id in get_book_ids_from_pages(library_site_url, args.start_page, args.end_page):
-        try:
-            response = requests.get(f'{library_site_url}b{book_id}/')
-            response.raise_for_status()
+    try:
+        for book_id in get_book_ids_from_pages(library_site_url, args.start_page, args.end_page):
+            try:
+                response = requests.get(f'{library_site_url}b{book_id}/')
+                response.raise_for_status()
 
-            check_for_redirect(response)
+                check_for_redirect(response)
 
-            book_description = parse_book_page(response.content)
+                book_description = parse_book_page(response.content)
 
-            books_catalog.append(book_description)
+                books_catalog.append(book_description)
 
-            book_url = urljoin(
-                library_site_url,
-                book_description['download_url']
-            )
-            book_filename = f'{book_id}. {book_description["book_title"]}'
+                book_url = urljoin(
+                    library_site_url,
+                    book_description['download_url']
+                )
+                book_filename = f'{book_id}. {book_description["book_title"]}'
 
-            book_image_url = urljoin(
-                library_site_url,
-                book_description['book_image_url']
-            )
-            book_image_filename = os.path.basename(
-                unquote(
-                    urlsplit(book_image_url).path
+                book_image_url = urljoin(
+                    library_site_url,
+                    book_description['book_image_url']
+                )
+                book_image_filename = os.path.basename(
+                    unquote(
+                        urlsplit(book_image_url).path
+                    ))
+                image_filename = f'{book_id}_{book_image_filename}'
+
+                if not args.skip_txt:
+                    download_txt(book_url, book_filename, books_folder)
+
+                if not args.skip_imgs:
+                    download_image(
+                        book_image_url, image_filename, images_folder)
+
+                print(urljoin(
+                    library_site_url,
+                    f'b{book_id}'
                 ))
-            image_filename = f'{book_id}_{book_image_filename}'
-
-            if not args.skip_txt:
-                download_txt(book_url, book_filename, books_folder)
-
-            if not args.skip_imgs:
-                download_image(book_image_url, image_filename, images_folder)
-
-            print(urljoin(
-                library_site_url,
-                f'b{book_id}'
-            ))
-        except requests.HTTPError or requests.ConnectionError:
-            print('Не удалось скачать книгу с сервера.')
+            except requests.HTTPError or requests.ConnectionError:
+                print('Не удалось скачать книгу с сервера.')
+    except requests.HTTPError or requests.ConnectionError:
+        print('Не удалось скачать книгу с сервера.')
 
     with open(json_path, 'w', encoding='utf8') as json_file:
         json_file.write(json.dumps(books_catalog, ensure_ascii=False))
