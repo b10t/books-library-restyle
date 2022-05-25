@@ -159,7 +159,9 @@ if __name__ == '__main__':
     try:
         for book_id in get_book_ids_from_pages(library_site_url, args.start_page, args.end_page):
             try:
-                response = requests.get(f'{library_site_url}b{book_id}/')
+                book_page_url = f'{library_site_url}b{book_id}/'
+                
+                response = requests.get(book_page_url)
                 response.raise_for_status()
 
                 check_for_redirect(response)
@@ -169,13 +171,13 @@ if __name__ == '__main__':
                 books_catalog.append(book)
 
                 book_url = urljoin(
-                    library_site_url,
+                    book_page_url,
                     book['download_url']
                 )
                 book_filename = f'{book_id}. {book["book_title"]}'
 
                 book_image_url = urljoin(
-                    library_site_url,
+                    book_page_url,
                     book['book_image_url']
                 )
                 book_image_filename = os.path.basename(
