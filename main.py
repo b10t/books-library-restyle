@@ -26,7 +26,7 @@ def download_txt(url, filename, folder='books'):
 
     check_for_redirect(response)
 
-    book_save_path = os.path.join(folder, f'{sanitize_filename(filename)}.txt')
+    book_save_path = os.path.join(folder, f'{sanitize_filename(filename)}')
     with open(book_save_path, 'wb') as file:
         file.write(response.content)
 
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         for book_id in get_book_ids_from_pages(library_site_url, args.start_page, args.end_page):
             try:
                 book_page_url = f'{library_site_url}b{book_id}/'
-                
+
                 response = requests.get(book_page_url)
                 response.raise_for_status()
 
@@ -168,13 +168,11 @@ if __name__ == '__main__':
 
                 book = parse_book_page(response.content)
 
-                books_catalog.append(book)
-
                 book_url = urljoin(
                     book_page_url,
                     book['download_url']
                 )
-                book_filename = f'{book_id}. {book["book_title"]}'
+                book_filename = f'{book_id}. {book["book_title"]}.txt'
 
                 book_image_url = urljoin(
                     book_page_url,
@@ -193,10 +191,11 @@ if __name__ == '__main__':
                     download_image(
                         book_image_url, image_filename, images_folder)
 
-                print(urljoin(
-                    library_site_url,
-                    f'b{book_id}'
-                ))
+                book['book_filename'] = book_filename
+                book['image_filename'] = image_filename
+                books_catalog.append(book)
+
+                print(book_page_url)
             except requests.HTTPError or requests.ConnectionError:
                 print('Не удалось скачать книгу с сервера.')
     except requests.HTTPError or requests.ConnectionError:
