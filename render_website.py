@@ -1,9 +1,10 @@
-from more_itertools import chunked
 import json
 import os
+import urllib.parse
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
+from more_itertools import chunked
 
 
 def on_reload():
@@ -14,6 +15,9 @@ def on_reload():
 
     for book in books_catalog:
         book['image_filename'] = os.path.join('images', book['image_filename'])
+        book['book_filename'] = urllib.parse.quote(
+            os.path.join('books', book['book_filename'])
+        )
 
     env = Environment(
         loader=FileSystemLoader('.'),
