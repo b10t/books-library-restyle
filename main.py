@@ -26,7 +26,7 @@ def download_txt(url, filename, folder='books'):
 
     check_for_redirect(response)
 
-    book_save_path = os.path.join(folder, f'{sanitize_filename(filename)}')
+    book_save_path = os.path.join(folder, filename)
     with open(book_save_path, 'wb') as file:
         file.write(response.content)
 
@@ -172,7 +172,8 @@ if __name__ == '__main__':
                     book_page_url,
                     book['download_url']
                 )
-                book_filename = f'{book_id}. {book["book_title"]}.txt'
+                book_filename = sanitize_filename(
+                    f'{book_id}. {book["book_title"]}.txt')
 
                 book_image_url = urljoin(
                     book_page_url,
