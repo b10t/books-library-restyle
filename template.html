@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <title>Books</title>
-    <link rel="shortcut icon" type="image/jpg" href="/static/favicon.ico" />
+    <link rel="shortcut icon" type="image/jpg" href="../static/favicon.ico" />
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
   </head>
   <body>
 
@@ -18,21 +18,21 @@
         {% if page_index-1 == 0 %}
           <li class="page-item disabled"><a class="page-link" href="#">Назад</a></li>
         {% else %}
-          <li class="page-item"><a class="page-link" href="/pages/index{{ page_index-1 }}.html">Назад</a></li>
+          <li class="page-item"><a class="page-link" href="./index{{ page_index-1 }}.html">Назад</a></li>
         {% endif %}
 
         {% for index in range(1, pages_number) %}
           {% if page_index == index %}
-            <li class="page-item active"><a class="page-link" href="/pages/index{{ index }}.html">{{ index }}</a></li>
+            <li class="page-item active"><a class="page-link" href="./index{{ index }}.html">{{ index }}</a></li>
           {% else %}
-            <li class="page-item"><a class="page-link" href="/pages/index{{ index }}.html">{{ index }}</a></li>
+            <li class="page-item"><a class="page-link" href="./index{{ index }}.html">{{ index }}</a></li>
           {% endif %}
         {% endfor %}
 
         {% if page_index+1 == pages_number %}
           <li class="page-item disabled"><a class="page-link" href="#">Вперёд</a></li>
         {% else %}
-          <li class="page-item"><a class="page-link" href="/pages/index{{ page_index+1 }}.html">Вперёд</a></li>
+          <li class="page-item"><a class="page-link" href="./index{{ page_index+1 }}.html">Вперёд</a></li>
         {% endif %}
       </ul>
     </nav>
@@ -69,8 +69,8 @@
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="/static/js/jquery-3.3.1.slim.min.js"></script>
-    <script src="/static/js/popper.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="../static/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="../static/js/popper.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
   </body>
 </html>

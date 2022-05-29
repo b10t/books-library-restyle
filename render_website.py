@@ -16,9 +16,9 @@ def on_reload():
 
     for book in books_catalog:
         book['image_filename'] = os.path.join(
-            '/../images', book['image_filename'])
+            '../images', book['image_filename'])
         book['book_filename'] = urllib.parse.quote(
-            os.path.join('/../books', book['book_filename'])
+            os.path.join('../books', book['book_filename'])
         )
 
     env = Environment(
