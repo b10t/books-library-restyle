@@ -12,22 +12,31 @@
   </head>
   <body>
 
-    {% for book in books_catalog %}
-      <div class="card mb-3" style="max-width: 540px;">
-        <div class="row no-gutters">
-          <div class="col-md-4">
-            <img src="{{ book.image_filename }}" class="card-img" alt="{{ book.book_title }}">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title">{{ book.book_title}}</h5>
-              <p class="card-text">{{ book.book_author }}</p>
-              <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+    <div class="container">
+      {% for books in books_catalog %}
+        <div class="row">
+          {% for book in books %}
+          <div class="col">
+            <div class="card mb-3" style="max-width: 540px;">
+              <div class="row no-gutters">
+                <div class="col-md-4">
+                  <img src="{{ book.image_filename }}" class="card-img" alt="{{ book.book_title }}">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ book.book_title}}</h5>
+                    <p class="card-text">{{ book.book_author }}</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          {% endfor %}
         </div>
-      </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
+
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
