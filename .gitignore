@@ -154,5 +154,6 @@ cython_debug/
 .vscode/
 books/
 images/
+pages/
 *.json
 index.html

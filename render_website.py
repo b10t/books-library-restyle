@@ -25,13 +25,21 @@ def on_reload():
     )
     template = env.get_template('template.html')
 
-    rendered_page = template.render(
-        books_catalog=list(chunked(books_catalog, 2)),
-    )
+    for page_index, books in enumerate(chunked(books_catalog, 20)):
+        page_save_path = os.path.join(
+            'pages',
+            f'index{page_index + 1}.html'
+        )
 
-    with open('index.html', 'w', encoding="utf8") as file:
-        file.write(rendered_page)
+        rendered_page = template.render(
+            books_catalog=list(chunked(books, 2)),
+        )
 
+        with open(page_save_path, 'w', encoding="utf8") as file:
+            file.write(rendered_page)
+
+
+os.makedirs('pages', exist_ok=True)
 
 on_reload()
 
