@@ -10,9 +10,7 @@ from more_itertools import chunked
 
 def on_reload():
     with open("books_catalog.json", "r") as books_file:
-        books_json = books_file.read()
-
-    books_catalog = json.loads(books_json)
+        books_catalog = json.load(books_file)
 
     for book in books_catalog:
         book['image_filename'] = os.path.join(
