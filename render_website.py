@@ -7,6 +7,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from livereload import Server
 from more_itertools import chunked
 
+books_per_page_number = 20
+
 
 def on_reload():
     with open("books_catalog.json", "r") as books_file:
@@ -25,9 +27,9 @@ def on_reload():
     )
     template = env.get_template('template.html')
 
-    pages_number = math.ceil(len(books_catalog) / 20) + 1
+    pages_number = math.ceil(len(books_catalog) / books_per_page_number) + 1
 
-    for page_index, books in enumerate(chunked(books_catalog, 20), start=1):
+    for page_index, books in enumerate(chunked(books_catalog, books_per_page_number), start=1):
         page_save_path = os.path.join(
             'pages',
             f'index{page_index}.html'
